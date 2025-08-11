@@ -31,10 +31,18 @@ export function ProtectedRoute({
 
   // Check if user has required role
   if (requiredRole && user.role !== requiredRole) {
+    // Redirect super admin to their dashboard
+    if (user.role === 'super_admin') {
+      return <Navigate to="/super-admin" replace />
+    }
     return <Navigate to="/dashboard" replace />
   }
 
   if (requiredRoles && !requiredRoles.includes(user.role)) {
+    // Redirect super admin to their dashboard
+    if (user.role === 'super_admin') {
+      return <Navigate to="/super-admin" replace />
+    }
     return <Navigate to="/dashboard" replace />
   }
 

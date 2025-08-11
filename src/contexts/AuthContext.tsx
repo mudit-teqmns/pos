@@ -37,6 +37,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error('Error fetching user profile:', error)
+        // If user profile doesn't exist, this might be a super admin or new user
+        if (error.code === 'PGRST116') {
+          // No user profile found - this could be normal for super admin
+          return null
+        }
         return null
       }
 
@@ -48,11 +53,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const refreshUser = async () => {
-    const { data: { user: authUser } } = await supabase.auth.getUser()
-    if (authUser) {
-      const userProfile = await fetchUserProfile(authUser)
-      setUser(userProfile)
-      setSupabaseUser(authUser)
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (authUser) {
+        const userProfile = await fetchUserProfile(authUser)
+        setUser(userProfile)
+        setSupabaseUser(authUser)
+      }
+    } catch (error) {
+      console.error('Error refreshing user:', error)
     }
   }
 
@@ -62,6 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         setSupabaseUser(session.user)
         fetchUserProfile(session.user).then(setUser)
+      } else {
+        setUser(null)
+        setSupabaseUser(null)
       }
       setLoading(false)
     })
@@ -69,6 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email)
         if (session?.user) {
           setSupabaseUser(session.user)
           const userProfile = await fetchUserProfile(session.user)

@@ -48,6 +48,14 @@ function App() {
             } 
           />
           <Route 
+            path="/" 
+            element={
+              <ProtectedRoute>
+                <Navigate to="/dashboard" replace />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/menu" 
             element={
               <ProtectedRoute requiredRoles={['kitchen_owner', 'manager']}>
@@ -103,7 +111,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
         <Toaster 
           position="top-right"

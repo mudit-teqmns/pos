@@ -35,8 +35,10 @@ export default function LoginPage() {
 
     try {
       await signIn(formData.email, formData.password)
+      // Don't navigate here - let the auth context handle it
     } catch (error) {
-      // Error is already handled in the signIn function
+      console.error('Login error:', error)
+      // Error is already handled in the signIn function with toast
     } finally {
       setIsLoading(false)
     }
